@@ -2,7 +2,7 @@ name: CI
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # ⏰ Mỗi 3 giờ một lần
+    - cron: '0 */3 * * *'  # ⏰ Mỗi 3 giờ một lần (theo UTC)
   workflow_dispatch:
 
 jobs:
@@ -18,9 +18,10 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo " " >> README.md
+          echo "Last run: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" > timestamp.txt
+          cat timestamp.txt >> README.md
           git config user.name "blwsy"
           git config user.email "lethanhofc@outlook.com"
-          git add README.md
-          git commit -m "Always green!" || echo "No changes to commit"
+          git add README.md timestamp.txt
+          git commit -m "✅ Auto update at $(date -u '+%Y-%m-%d %H:%M:%S UTC')" || echo "No changes to commit"
           git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
