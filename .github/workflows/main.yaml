@@ -2,7 +2,7 @@ name: CI
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # ⏰ Mỗi 3 giờ một lần (UTC)
+    - cron: '0 */3 * * *'  # Chạy mỗi 3 giờ
   workflow_dispatch:
 
 jobs:
@@ -12,19 +12,21 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          persist-credentials: false  # Không dùng token mặc định
+          persist-credentials: false
 
       - name: Run script
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Hiển thị timestamp theo múi giờ Việt Nam (UTC+7)
-          TIMESTAMP=$(TZ='Asia/Ho_Chi_Minh' date '+%Y-%m-%d %H:%M:%S %Z')
-          echo "Last run: $TIMESTAMP" > timestamp.txt
-          echo "$TIMESTAMP" >> README.md
+          # Lấy thời gian hiện tại ở Việt Nam
+          TIMESTAMP=$(TZ='Asia/Ho_Chi_Minh' date '+%Y-%m-%d %H:%M:%S ICT')
 
+          # Ghi đè nội dung README.md chỉ với dòng timestamp
+          echo "Last run: $TIMESTAMP" > README.md
+
+          # Commit & push nếu có thay đổi
           git config user.name "blwsy"
           git config user.email "lethanhofc@outlook.com"
-          git add README.md timestamp.txt
+          git add README.md
           git commit -m "✅ Auto update at $TIMESTAMP" || echo "No changes to commit"
           git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
