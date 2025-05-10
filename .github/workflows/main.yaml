@@ -2,7 +2,7 @@ name: CI
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # Chạy mỗi 3 giờ
+    - cron: '0 */3 * * *'
   workflow_dispatch:
 
 jobs:
@@ -12,26 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          persist-credentials: false
+          persist-credentials: false  # Ngăn dùng GITHUB_TOKEN mặc định
 
       - name: Run script
         env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TOKEN: ${{ secrets.MY_PAT }}  # ✅ Dùng PAT riêng
         run: |
-          # Lấy thời gian hiện tại ở Việt Nam
           TIMESTAMP=$(TZ='Asia/Ho_Chi_Minh' date '+%Y-%m-%d %H:%M:%S ICT')
-
-          # Ghi đè README.md chỉ chứa lần chạy gần nhất
           echo "Last run: $TIMESTAMP" > README.md
-
-          # Ghi thêm vào file log
           echo "$TIMESTAMP" >> run_log.txt
-
-          # Đếm số lần chạy
           COUNT=$(wc -l < run_log.txt)
           echo "Total runs: $COUNT" >> README.md
 
-          # Thiết lập git và commit
           git config user.name "blwsy"
           git config user.email "lethanhofc@outlook.com"
           git add README.md run_log.txt
