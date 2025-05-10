@@ -21,12 +21,19 @@ jobs:
           # Lấy thời gian hiện tại ở Việt Nam
           TIMESTAMP=$(TZ='Asia/Ho_Chi_Minh' date '+%Y-%m-%d %H:%M:%S ICT')
 
-          # Ghi đè nội dung README.md chỉ với dòng timestamp
+          # Ghi đè README.md chỉ chứa lần chạy gần nhất
           echo "Last run: $TIMESTAMP" > README.md
 
-          # Commit & push nếu có thay đổi
+          # Ghi thêm vào file log
+          echo "$TIMESTAMP" >> run_log.txt
+
+          # Đếm số lần chạy
+          COUNT=$(wc -l < run_log.txt)
+          echo "Total runs: $COUNT" >> README.md
+
+          # Thiết lập git và commit
           git config user.name "blwsy"
           git config user.email "lethanhofc@outlook.com"
-          git add README.md
-          git commit -m "✅ Auto update at $TIMESTAMP" || echo "No changes to commit"
+          git add README.md run_log.txt
+          git commit -m "✅ Run #$COUNT at $TIMESTAMP" || echo "No changes to commit"
           git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
